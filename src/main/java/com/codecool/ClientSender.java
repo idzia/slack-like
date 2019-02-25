@@ -10,6 +10,8 @@ public class ClientSender implements Runnable {
     private Socket socket;
     public PrintWriter writer;
     private String clientNick;
+    private Message message;
+    private ObjectOutputStream preparedMessage;
 
     public ClientSender(Socket socket, String clientNick) {
         this.socket = socket;
@@ -19,18 +21,22 @@ public class ClientSender implements Runnable {
     public void run() {
         try {
             OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
+//            writer = new PrintWriter(output, true);
+            preparedMessage = new ObjectOutputStream(output);
 
             while (true) {
 //                BufferedReader
                         reader = new BufferedReader(new InputStreamReader(System.in));
                 if((text = reader.readLine())!=null){
-                    writer.println(clientNick + ": " + text);
+                    message = new Message(text, clientNick);
+
+                    preparedMessage.writeObject(message);
+
+//                    writer.println(clientNick + ": " + text);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return;
         }
     }
 }

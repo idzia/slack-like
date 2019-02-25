@@ -10,7 +10,10 @@ public class ServerThread extends Thread {
     private OutputStream output;
     private BufferedReader reader;
     private PrintWriter writer;
+    private Message message;
     private String text;
+    private ObjectInputStream incomingMessage;
+    private ObjectOutputStream preparedMessage;
     private boolean hasMessage = false;
 
     public ServerThread(Socket clientSocket) {
@@ -20,29 +23,46 @@ public class ServerThread extends Thread {
     public void run() {
 
         try {
-            connectionEstablishing();
+            output = socket.getOutputStream();
+//            connectionEstablishing();
+
+            preparedMessage = new ObjectOutputStream(output);
 
             input = socket.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(input));
+//            reader = new BufferedReader(new InputStreamReader(input));
+            incomingMessage = new ObjectInputStream(input);
 
             while (true) {
-                if ((text = reader.readLine())!= null) {
+//                if ((text = reader.readLine())!= null) {
+//                    hasMessage = true;
+//                }
+                if (incomingMessage != null) {
+                    message = (Message) incomingMessage.readObject();
                     hasMessage = true;
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("I can not found appropriate class");
         }
     }
 
     private void connectionEstablishing() throws IOException {
-        output = socket.getOutputStream();
         writer = new PrintWriter(output, true);
         writer.println("You joined to #general");
+
     }
-    public void sendMessage(String message){
-        writer.println(message);
+//    public void sendMessage(String message){
+    public void sendMessage(Message message){
+        try {
+        preparedMessage.writeObject(message);
+        } catch (IOException e) {
+            System.out.println("exception outputHandler");
+        }
+
+//        writer.println(message);
     }
 
     public boolean checkHasMessage() {
@@ -53,10 +73,18 @@ public class ServerThread extends Thread {
         this.hasMessage = hasMessage;
     }
 
-    public String getText() {
-        return text;
+//    public String getText() {
+//        return text;
+//    }
+
+
+    public Message getMessage() {
+        return message;
     }
 
+    public void setMessage(Message message) {
+        this.message = message;
+    }
 }
 
 

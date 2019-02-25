@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Server {
+public class Server{
 
     private static final int PORT = 9000;
     public static List<ServerThread> serverList = new ArrayList<>();
@@ -36,12 +36,15 @@ public class Server {
                 if (serverList != null) {
                     for (ServerThread server : serverList) {
                         if (server.checkHasMessage()) {
-                            String message = server.getText();
+//                            String message = server.getText();
+                            Message message = server.getMessage();
                             for (ServerThread newServer : serverList) {
+//                                newServer.sendMessage(message);
                                 newServer.sendMessage(message);
                             }
 
                             server.setHasMessage(false);
+                            server.setMessage(null);
                         }
                     }
 
