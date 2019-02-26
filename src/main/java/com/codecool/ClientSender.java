@@ -11,7 +11,7 @@ public class ClientSender implements Runnable {
     private BufferedReader reader;
     private Socket socket;
     private Message message;
-    private String activeChannel = "*welcome*";
+    private String activeChannel;
 //    private String activeChannel = "*welcome*";
     private String clientNick;
     private String text;
@@ -26,9 +26,12 @@ public class ClientSender implements Runnable {
             output = socket.getOutputStream();
             preparedMessage = new ObjectOutputStream(output);
 
-            message = new Message(" joined to SLACK", clientNick, activeChannel);
+            message = new Message("*welcome*", clientNick, activeChannel);
             preparedMessage.writeObject(message);
-            activeChannel = null;
+
+//            message = new Message(" joined to SLACK", clientNick, activeChannel);
+//            preparedMessage.writeObject(message);
+//            activeChannel = null;
 
             while (true) {
 

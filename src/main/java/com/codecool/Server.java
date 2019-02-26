@@ -23,8 +23,6 @@ public class Server {
             AcceptNewClient acceptClient = new AcceptNewClient(serverSocket);
             acceptClient.start();
 
-            initializeWelcomeChannel();
-
             while (true) {
 
                 if (acceptClient.isNewClient()){
@@ -34,12 +32,6 @@ public class Server {
 
                     serverClientList.add(serverClientSockets);
                     serverClientSockets.start();
-
-
-
-//                    String content = contentForActiveUserInfo();
-//                    Message activeUserInfo = new Message(content, "server", "init" );
-//                    serverClientSockets.sendMessage(activeUserInfo);
 
                     System.out.println("Active users: " + serverClientList.size());
                     acceptClient.setNewClient(false);
@@ -70,29 +62,29 @@ public class Server {
                                 if (channelsMap.containsKey(channel)) {
                                     channelsMap.get(channel).remove(serverClient);
                                 }
+                                String content = contentForActiveUserInfo();
+                                Message activeUserInfo = new Message(content, "server", "init" );
+                                serverClient.sendMessage(activeUserInfo);
+
+
+                            } else if (message.isWelcomeMessage()) {
+
+                                System.out.println("WELCOME command");
+                                String author = message.getAuthor();
+                                usersNicks.add(author);
+                                Message messageInit = new Message(author + " join to SLACK", "server", "init");
+                                for (ServerThread serverThread : serverClientList) {
+                                    serverThread.sendMessage(messageInit);
+                                }
+                                String content = contentForActiveUserInfo();
+                                Message activeUserInfo = new Message(content, "server", "init" );
+                                serverClient.sendMessage(activeUserInfo);
+
 
                             } else {
 
+                                System.out.println("Message");
                                 String channel = message.getChannel();
-                                String author = message.getAuthor();
-                                if (channel.equals("*welcome*")) {
-                                    System.out.println("Author: " + author);
-                                    usersNicks.add(author);
-
-
-                                    System.out.println("'*welcome*' channel was found");
-
-
-                                    channelsMap.get(channel).add(serverClient);
-                                    for (ServerThread serverThread : channelsMap.get(channel)) {
-                                        serverThread.sendMessage(message);
-                                    }
-
-                                    String content = contentForActiveUserInfo();
-                                    Message activeUserInfo = new Message(content, "server", "init" );
-                                    serverClient.sendMessage(activeUserInfo);
-
-                                }
                                 if (channel != null){
                                     for (ServerThread serverThread : channelsMap.get(channel)) {
                                         serverThread.sendMessage(message);
@@ -110,50 +102,23 @@ public class Server {
         }
     }
 
-    public static void initializeWelcomeChannel() {
-        List<ServerThread> initServerThreadList = new ArrayList<>();
-        channelsMap.put("*welcome*", initServerThreadList);
-    }
-
     private static String contentForActiveUserInfo() {
 
         StringBuilder stringBuilder = new StringBuilder();
 
         for (String key : channelsMap.keySet()) {
+            stringBuilder.append("Active channels: \n");
             stringBuilder.append(key);
             stringBuilder.append(", ");
         }
-        stringBuilder.append("\n");
+        stringBuilder.append("\n Active users: \n");
 
          for (String nick : usersNicks) {
              stringBuilder.append(nick);
              stringBuilder.append(", ");
          }
 
-//        for (Map.Entry<String, List<ServerThread>> entry : channelsMap.entrySet()) {
-//            stringBuilder.append(entry.getKey());
-//            List<ServerThread> valueList = entry.getValue();
-//            for (ServerThread serverThread : valueList) {
-//
-//            }
-//        }
-//
-//        for (ServerThread serverThread : serverClientList) {
-//            stringBuilder.append(serverThread.)
-//        }
-
-
         return stringBuilder.toString();
     }
-
-//
-//    public static synchronized void addToList(ServerThread serverClientSockets){
-//        serverClientList.add(serverClientSockets);
-//    }
-//
-//    public static List<ServerThread> getServerClientList() {
-//        return serverClientList;
-//    }
-
 
 }
