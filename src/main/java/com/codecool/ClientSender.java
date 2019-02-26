@@ -5,13 +5,16 @@ import java.net.Socket;
 import java.util.List;
 
 public class ClientSender implements Runnable {
-    private String text;
+
+    private ObjectOutputStream preparedMessage;
+    private OutputStream output;
     private BufferedReader reader;
     private Socket socket;
-    public PrintWriter writer;
-    private String clientNick;
     private Message message;
-    private ObjectOutputStream preparedMessage;
+    private String activeChannel = "*welcome*";
+//    private String activeChannel = "*welcome*";
+    private String clientNick;
+    private String text;
 
     public ClientSender(Socket socket, String clientNick) {
         this.socket = socket;
@@ -20,23 +23,36 @@ public class ClientSender implements Runnable {
 
     public void run() {
         try {
-            OutputStream output = socket.getOutputStream();
-//            writer = new PrintWriter(output, true);
+            output = socket.getOutputStream();
             preparedMessage = new ObjectOutputStream(output);
 
+            message = new Message(" joined to SLACK", clientNick, activeChannel);
+            preparedMessage.writeObject(message);
+            activeChannel = null;
+
             while (true) {
-//                BufferedReader
-                        reader = new BufferedReader(new InputStreamReader(System.in));
+
+                reader = new BufferedReader(new InputStreamReader(System.in));
+
                 if((text = reader.readLine())!=null){
-                    message = new Message(text, clientNick);
 
+                    message = new Message(text, clientNick, activeChannel);
+
+                    if (message.isJoinMessage()) {
+
+                        activeChannel = message.getChannelFromContent();
+
+                    } else if (message.isLeaveMessage()) {
+
+                        activeChannel = null;
+                    }
                     preparedMessage.writeObject(message);
-
-//                    writer.println(clientNick + ": " + text);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
 }

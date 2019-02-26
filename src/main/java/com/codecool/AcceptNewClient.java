@@ -21,7 +21,7 @@ public class AcceptNewClient extends Thread {
 
             }
         } catch (IOException e) {
-            System.out.println("During creating the socket occurred i/o error");
+            System.out.println("During creating the socket occurred IO error");
         }
     }
 

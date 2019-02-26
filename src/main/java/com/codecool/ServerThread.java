@@ -2,18 +2,14 @@ package com.codecool;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class ServerThread extends Thread {
     private Socket socket;
     private InputStream input;
     private OutputStream output;
-    private BufferedReader reader;
-    private PrintWriter writer;
-    private Message message;
-    private String text;
     private ObjectInputStream incomingMessage;
     private ObjectOutputStream preparedMessage;
+    private Message message;
     private boolean hasMessage = false;
 
     public ServerThread(Socket clientSocket) {
@@ -23,19 +19,15 @@ public class ServerThread extends Thread {
     public void run() {
 
         try {
-            output = socket.getOutputStream();
-//            connectionEstablishing();
 
+            output = socket.getOutputStream();
             preparedMessage = new ObjectOutputStream(output);
 
             input = socket.getInputStream();
-//            reader = new BufferedReader(new InputStreamReader(input));
             incomingMessage = new ObjectInputStream(input);
 
             while (true) {
-//                if ((text = reader.readLine())!= null) {
-//                    hasMessage = true;
-//                }
+
                 if (incomingMessage != null) {
                     message = (Message) incomingMessage.readObject();
                     hasMessage = true;
@@ -43,40 +35,23 @@ public class ServerThread extends Thread {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("During taking stream occurred IO error");
         } catch (ClassNotFoundException e) {
-            System.out.println("I can not found appropriate class");
+            System.out.println("Object Input Stream can not be convert to Message");
         }
     }
 
-    private void connectionEstablishing() throws IOException {
-        writer = new PrintWriter(output, true);
-        writer.println("You joined to #general");
-
-    }
-//    public void sendMessage(String message){
-    public void sendMessage(Message message){
-        try {
+    public void sendMessage(Message message) throws IOException {
         preparedMessage.writeObject(message);
-        } catch (IOException e) {
-            System.out.println("exception outputHandler");
-        }
-
-//        writer.println(message);
     }
 
-    public boolean checkHasMessage() {
+    public boolean hasMessage() {
         return hasMessage;
     }
 
     public void setHasMessage(boolean hasMessage) {
         this.hasMessage = hasMessage;
     }
-
-//    public String getText() {
-//        return text;
-//    }
-
 
     public Message getMessage() {
         return message;
@@ -85,6 +60,7 @@ public class ServerThread extends Thread {
     public void setMessage(Message message) {
         this.message = message;
     }
+
 }
 
 

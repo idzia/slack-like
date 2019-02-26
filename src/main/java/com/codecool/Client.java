@@ -5,63 +5,51 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class Client {
-    private static final int PORT = 9000;
-    private static final String HOSTNAME = "localhost";
-    private static ClientSender sender;
-    private static String clientNick;
-    private static Message message;
-    private static ObjectInputStream incomingMessage;
-    private static InputStream input;
-//    private Socket socket;
+public class Client implements Runnable {
 
-    public static void main(String[] args) {
+    private int port;
+    private String hostname;
+    private ClientSender sender;
+    private String clientNick;
+    private Message message;
+    private ObjectInputStream incomingMessage;
+    private InputStream input;
 
-        try (Socket socket = new Socket(HOSTNAME, PORT)) {
-            //InputStream
-            input = socket.getInputStream();
+    public Client(int port, String hostname, String clientNick) {
+        this.port = port;
+        this.hostname = hostname;
+        this.clientNick = clientNick;
+    }
 
-            welcome();
+    public void run() {
+
+        try (Socket socket = new Socket(hostname, port)) {
+
+            System.out.println("You can use command: /join #name, /leave #name");
 
             sender  = new ClientSender(socket, clientNick);
             Thread s = new Thread(sender);
             s.start();
 
+            input = socket.getInputStream();
             incomingMessage = new ObjectInputStream(input);
 
-//            String text;
-            do {
-//                text = reader.readLine();
-//                System.out.println(text);
+            while (true) {
                 if(incomingMessage != null) {
                     message = (Message) incomingMessage.readObject();
                     System.out.println(message.toString());
                 }
-
-//            } while (!text.equals("#exit"));
-            }while (true);
-
+            }
 
         } catch (UnknownHostException ex) {
-
-            System.out.println("Server not found: " + ex.getMessage());
+            System.out.println("Client can not found server" + hostname + " " + port);
 
         } catch (IOException ex) {
-
-            System.out.println("I/O error: " + ex.getMessage());
+            System.out.println("During taking stream by client occurred IO error");
 
         } catch (ClassNotFoundException e) {
-            System.out.println("I can not found appropriate class");
+            System.out.println("Object Input Stream can not be convert to Message");
         }
-    }
-
-    public static void welcome() {
-
-        System.out.println("Enter your NICK: ");
-        Scanner scanner = new Scanner(System.in);
-        clientNick = scanner.nextLine();
-        System.out.println("You can start chat");
-
     }
 
 }
