@@ -12,7 +12,7 @@ public class Message implements Serializable {
     private LocalDateTime createdAt ;
     private final String JOIN = "^\\/join #\\w+$";
     private final String LEAVE = "^\\/leave #\\w+$";
-//    private final String WELCOME = "^*welcome*$";
+    private final String WELCOME = "*welcome*";
     private final int CHANNEL_INDEX = 1;
 
     public Message(String content, String author, String channel) {
@@ -22,9 +22,9 @@ public class Message implements Serializable {
         this.createdAt = LocalDateTime.now();
     }
 
-    public String getContent() {
-        return content;
-    }
+//    public String getContent() {
+//        return content;
+//    }
 
     public boolean isJoinMessage() {
         return Pattern.matches(JOIN, content);
@@ -35,29 +35,20 @@ public class Message implements Serializable {
     }
 
     public boolean isWelcomeMessage() {
-        return content.equalsIgnoreCase("*welcome*");
+        return content.equals(WELCOME);
     }
 
     public String getChannelFromContent() {
         return content.split("\\s+")[CHANNEL_INDEX];
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public String getAuthor() {
         return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public String getChannel() {
         return channel;
     }
-
 
     @Override
     public String toString() {

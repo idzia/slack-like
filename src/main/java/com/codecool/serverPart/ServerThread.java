@@ -1,4 +1,6 @@
-package com.codecool;
+package com.codecool.serverPart;
+
+import com.codecool.Message;
 
 import java.io.*;
 import java.net.Socket;

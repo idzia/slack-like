@@ -1,4 +1,4 @@
-package com.codecool;
+package com.codecool.serverPart;
 
 import java.io.IOException;
 import java.net.ServerSocket;

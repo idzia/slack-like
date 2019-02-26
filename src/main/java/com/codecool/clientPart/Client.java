@@ -1,9 +1,10 @@
-package com.codecool;
+package com.codecool.clientPart;
+
+import com.codecool.Message;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class Client implements Runnable {
 
@@ -21,6 +22,7 @@ public class Client implements Runnable {
         this.clientNick = clientNick;
     }
 
+    @Override
     public void run() {
 
         try (Socket socket = new Socket(hostname, port)) {
